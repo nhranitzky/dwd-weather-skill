@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# uv / virtualenv
+.venv/
+uv.lock
+
+# Build artifacts
+*.zip
+*.skill
+
+# macOS
+.DS_Store
+
+# Claude Code
+CLAUDE.md

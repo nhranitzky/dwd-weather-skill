@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# =============================================================================
+# weather – DWD Weather CLI launcher
+#
+# Runs the Python DWD weather scripts via `uv run --project`, ensuring that
+# the correct virtual environment and dependencies are always used.
+#
+# Usage:
+#   weathercurrent   <location>
+#   weatherforecast  <location> [--days N] [--daily]
+#   weatherhistory   <location> --date YYYY-MM-DD [--end-date YYYY-MM-DD] [--daily]
+#   weatheralerts    <location>
+#   weatherstations  <location> [--radius KM]
+#   weathersummary   <location> [--days N]
+#   weather--help
+# =============================================================================
+
+set -euo pipefail
+
+# Resolve the directory of this script, following symlinks
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+
+# The project root is one level above bin/
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+exec uv run --project "$PROJECT_ROOT" --directory "${PROJECT_ROOT}" python -m scripts.main "$@"
