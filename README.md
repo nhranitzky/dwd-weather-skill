@@ -262,6 +262,10 @@ All endpoints accept `lat`/`lon`. No authentication required.
 
 ---
 
+## Development Notes
+Parts of this codebase were generated or assisted by Claude Code  Sonnet 4.6  
+All generated code has been reviewed and tested by human developers.
+
 ## License
 
 MIT – see [BrightSky license](https://github.com/jdemaeyer/brightsky/blob/master/LICENSE).
