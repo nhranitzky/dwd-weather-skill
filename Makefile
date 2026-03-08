@@ -1,9 +1,9 @@
-
+include .env
 SKILL_DIR  := dwd-weather
 SKILL_NAME := $(notdir $(abspath $(SKILL_DIR)))
 VERSION    := $(shell grep '^version' $(SKILL_DIR)/pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 SKILL_ZIP_NAME := $(SKILL_NAME).skill_v$(VERSION).zip
-TARGET=pi@openclaw.local
+ 
 
 
 .PHONY: install lint package clean deploy help
@@ -17,7 +17,7 @@ lint:             ## Check code style
 
 package:          ## Build .skill zip
 	(cd $(dir $(abspath $(SKILL_DIR))) && \
-	 zip -r $(SKILL_ZIP_NAME) $(SKILL_NAME)/ --exclude=*.venv* --exclude=*.zip --exclude=__pycache__ --exclude=.pytest_cache --exclude=*.lock --exclude=*.DS_Store)
+	 zip -r $(SKILL_ZIP_NAME) $(SKILL_NAME)/ --exclude=*.venv* --exclude=*.zip --exclude=*/__pycache__/* --exclude=*/__pycache__ --exclude=*/.pytest_cache/* --exclude=*.lock --exclude=*.DS_Store)
 	@echo "Created: $(SKILL_ZIP_NAME)"
 
 clean:            ## Remove build artifacts
@@ -29,7 +29,7 @@ clean:            ## Remove build artifacts
 	rm $(SKILL_DIR)/uv.lock
 
 deploy:           ## Deploy skill zip to Openclaw device
-	scp $(SKILL_ZIP_NAME) $(TARGET):/home/pi/openclaw/skills/
+	scp $(SKILL_ZIP_NAME) $(TARGET):$(REMOTE_DOWNLOADS_DIR)
 
 help:             ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
