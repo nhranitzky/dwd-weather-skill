@@ -1,4 +1,4 @@
-# DWD Weather CLI
+# DWD Weather CLI and Skill
 
 A command-line weather tool powered by the [BrightSky API](https://brightsky.dev),
 which provides free access to data from the **Deutscher Wetterdienst (DWD)** –
@@ -8,6 +8,8 @@ Features include current observations, multi-day forecasts, historical queries,
 weather alerts, and station discovery – all by city name, with no API key required.
 
 Works as a **standalone CLI** and as an **Openclaw skill**.
+
+> **Openclaw Skill Setup:** see [dwd-weather/references/setup.md](dwd-weather/references/setup.md)
 
 ---
 
