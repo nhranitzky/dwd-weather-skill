@@ -7,6 +7,7 @@ back to the early 20th century for some stations.
 
 from __future__ import annotations
 
+import json as _json
 from datetime import datetime, timedelta
 
 import click
@@ -33,8 +34,9 @@ from scripts.utils import (
 @click.option("--units", default="dwd", type=click.Choice(["dwd", "si"]), show_default=True)
 @click.option("--daily", is_flag=True, default=False,
               help="Show condensed daily summary instead of hourly rows.")
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
 def history(location: tuple[str, ...], date: str, end_date: str | None,
-            tz: str, units: str, daily: bool):
+            tz: str, units: str, daily: bool, output_json: bool):
     """
     Query HISTORICAL weather observations for LOCATION.
 
@@ -87,6 +89,17 @@ def history(location: tuple[str, ...], date: str, end_date: str | None,
     obs_types = list({s.get("observation_type", "?") for s in sources})
     station_names = list({s.get("station_name", "?") for s in sources})
     period = f"{date}" + (f" → {end_date}" if end_date else "")
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "period": period,
+            "stations": station_names,
+            "observation_types": obs_types,
+            "records": aggregate_daily(records) if daily else records,
+            "mode": "daily" if daily else "hourly",
+        }, indent=2, ensure_ascii=False))
+        return
 
     if daily:
         _print_daily_summary(records, display, station_names, period)

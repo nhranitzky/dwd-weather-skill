@@ -7,6 +7,8 @@ SYNOP observation into a single consolidated record.
 
 from __future__ import annotations
 
+import json as _json
+
 import click
 from rich.panel import Panel
 from rich.table import Table
@@ -33,7 +35,8 @@ from scripts.utils import (
 @click.option("--tz", default="Europe/Berlin", show_default=True, help="Timezone for timestamps.")
 @click.option("--units", default="dwd", type=click.Choice(["dwd", "si"]), show_default=True,
               help="Unit system: 'dwd' = km/h / mm / °C, 'si' = m/s / kg/m² / K.")
-def current(location: tuple[str, ...], tz: str, units: str):
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
+def current(location: tuple[str, ...], tz: str, units: str, output_json: bool):
     """Show CURRENT weather for LOCATION (city name or address)."""
     place = " ".join(location)
     lat, lon, display = geocode(place)
@@ -41,6 +44,14 @@ def current(location: tuple[str, ...], tz: str, units: str):
     data = brightsky_get("/current_weather", {"lat": lat, "lon": lon, "tz": tz, "units": units})
     w = data.get("weather") or data.get("current_weather", {})
     source = (data.get("sources") or [{}])[0]
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "weather": w,
+            "source": source,
+        }, indent=2, ensure_ascii=False))
+        return
 
     icon = weather_icon(w)
     condition = (w.get("condition") or "").replace("_", " ").title()

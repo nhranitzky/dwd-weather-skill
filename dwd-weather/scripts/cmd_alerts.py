@@ -7,6 +7,8 @@ Alerts are issued by the DWD for Germany only.
 
 from __future__ import annotations
 
+import json as _json
+
 import click
 from rich.panel import Panel
 from rich.text import Text
@@ -35,7 +37,8 @@ SEVERITY_ICONS = {
 
 @click.command()
 @click.argument("location", nargs=-1, required=True)
-def alerts(location: tuple[str, ...]):
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
+def alerts(location: tuple[str, ...], output_json: bool):
     """Show active DWD weather ALERTS (warnings) for LOCATION.
 
     Only available for locations within Germany.
@@ -47,9 +50,20 @@ def alerts(location: tuple[str, ...]):
     alert_list = data.get("alerts", [])
     location_info = data.get("location", {})
 
-    console.print()
     municipality = location_info.get("name") or display
     warn_cell = location_info.get("warn_cell_id", "")
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "municipality": municipality,
+            "warn_cell_id": warn_cell,
+            "alerts": alert_list,
+        }, indent=2, ensure_ascii=False))
+        return
+
+    console.print()
+
     console.print(f"[bold]Weather Alerts[/] – {municipality}"
                   + (f"  [dim](warn cell: {warn_cell})[/]" if warn_cell else ""))
     if not warn_cell:

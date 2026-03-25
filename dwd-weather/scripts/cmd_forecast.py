@@ -7,6 +7,7 @@ Displays up to N days of hourly data in a rich table.
 
 from __future__ import annotations
 
+import json as _json
 from datetime import datetime, timedelta, timezone
 
 import click
@@ -31,7 +32,8 @@ from scripts.utils import (
               help="Show a condensed daily summary instead of hourly rows.")
 @click.option("--tz", default="Europe/Berlin", show_default=True)
 @click.option("--units", default="dwd", type=click.Choice(["dwd", "si"]), show_default=True)
-def forecast(location: tuple[str, ...], days: int, daily: bool, tz: str, units: str):
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
+def forecast(location: tuple[str, ...], days: int, daily: bool, tz: str, units: str, output_json: bool):
     """Show weather FORECAST for LOCATION (up to 10 days, hourly or daily)."""
     place = " ".join(location)
     lat, lon, display = geocode(place)
@@ -53,6 +55,15 @@ def forecast(location: tuple[str, ...], days: int, daily: bool, tz: str, units: 
 
     source = (data.get("sources") or [{}])[0]
     station = source.get("station_name") or "MOSMIX forecast"
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "source": station,
+            "records": aggregate_daily(records) if daily else records,
+            "mode": "daily" if daily else "hourly",
+        }, indent=2, ensure_ascii=False))
+        return
 
     if daily:
         _print_daily(records, display, station)

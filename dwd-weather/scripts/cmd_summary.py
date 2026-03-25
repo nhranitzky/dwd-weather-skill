@@ -7,6 +7,7 @@ at-a-glance overview – ideal for a quick terminal weather check.
 
 from __future__ import annotations
 
+import json as _json
 from datetime import datetime, timedelta, timezone
 
 import click
@@ -36,7 +37,8 @@ from scripts.utils import (
               help="Number of forecast days to include in the outlook.")
 @click.option("--tz", default="Europe/Berlin", show_default=True)
 @click.option("--units", default="dwd", type=click.Choice(["dwd", "si"]), show_default=True)
-def summary(location: tuple[str, ...], days: int, tz: str, units: str):
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
+def summary(location: tuple[str, ...], days: int, tz: str, units: str, output_json: bool):
     """Compact weather SUMMARY: current conditions + multi-day outlook."""
     place = " ".join(location)
     lat, lon, display = geocode(place)
@@ -60,6 +62,16 @@ def summary(location: tuple[str, ...], days: int, tz: str, units: str):
     # Fetch alerts (best-effort, may 404 outside Germany)
     alert_data = brightsky_get("/alerts", {"lat": lat, "lon": lon}, optional=True)
     alert_list = alert_data.get("alerts", []) if alert_data else []
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "current": w,
+            "current_source": cur_source,
+            "forecast": aggregate_daily(records),
+            "alerts": alert_list,
+        }, indent=2, ensure_ascii=False))
+        return
 
     # ── Current conditions panel ─────────────────────────────────────────────
     icon = weather_icon(w)

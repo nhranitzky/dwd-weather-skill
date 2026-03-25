@@ -7,6 +7,8 @@ stations and their data coverage.
 
 from __future__ import annotations
 
+import json as _json
+
 import click
 from rich.table import Table
 from rich import box
@@ -25,7 +27,8 @@ from scripts.utils import (
               help="Search radius in kilometres.")
 @click.option("--limit", "-n", default=15, show_default=True, type=int,
               help="Maximum number of stations to display.")
-def stations(location: tuple[str, ...], radius: int, limit: int):
+@click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")
+def stations(location: tuple[str, ...], radius: int, limit: int, output_json: bool):
     """List DWD observation STATIONS near LOCATION.
 
     Shows station name, observation type, data coverage dates and distance.
@@ -44,6 +47,14 @@ def stations(location: tuple[str, ...], radius: int, limit: int):
         return
 
     sources = sorted(sources, key=lambda s: s.get("distance", 0))[:limit]
+
+    if output_json:
+        click.echo(_json.dumps({
+            "location": display,
+            "radius_km": radius,
+            "stations": sources,
+        }, indent=2, ensure_ascii=False))
+        return
 
     table = Table(
         title=f"DWD Stations near {display}  (radius: {radius} km)",
