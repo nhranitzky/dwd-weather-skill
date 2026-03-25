@@ -11,16 +11,14 @@ import json as _json
 from datetime import datetime, timedelta
 
 import click
-from rich.table import Table
-from rich import box
 
 from scripts.utils import (
     console,
     geocode,
     brightsky_get,
-    make_weather_table,
-    weather_row,
     aggregate_daily,
+    print_hourly_table,
+    print_daily_table,
 )
 
 
@@ -102,51 +100,24 @@ def history(location: tuple[str, ...], date: str, end_date: str | None,
         return
 
     if daily:
-        _print_daily_summary(records, display, station_names, period)
+        _print_daily_summary(records, display, station_names, period, units)
     else:
-        _print_hourly(records, display, station_names, period, obs_types)
+        _print_hourly(records, display, station_names, period, obs_types, units)
 
 
-def _print_hourly(records, display, stations, period, obs_types):
-    title = f"Historical Weather – {display}  [{period}]"
-    table = make_weather_table(title)
-    for r in records:
-        table.add_row(*weather_row(r))
-    console.print()
-    console.print(table)
-    console.print(f"[dim]  Stations: {', '.join(stations)}  |  "
-                  f"Observation type(s): {', '.join(obs_types)}  |  "
-                  f"{len(records)} records[/]")
-    console.print()
+def _print_hourly(records, display, stations, period, obs_types, units):
+    footer = (f"Stations: {', '.join(stations)}  |  "
+              f"Observation type(s): {', '.join(obs_types)}  |  "
+              f"{len(records)} records")
+    print_hourly_table(records, f"Historical Weather – {display}  [{period}]", footer, units)
 
 
-def _print_daily_summary(records, display, stations, period):
-    table = Table(
-        title=f"Historical Daily Summary – {display}  [{period}]",
-        box=box.ROUNDED, show_header=True, header_style="bold cyan",
+def _print_daily_summary(records, display, stations, period, units):
+    print_daily_table(
+        records,
+        f"Historical Daily Summary – {display}  [{period}]",
+        f"Stations: {', '.join(stations)}",
+        units,
+        show_avg_temp=True,
+        show_humidity=True,
     )
-    table.add_column("Date", no_wrap=True)
-    table.add_column("Min °C", justify="right")
-    table.add_column("Max °C", justify="right")
-    table.add_column("Avg °C", justify="right")
-    table.add_column("Precip Total", justify="right")
-    table.add_column("Avg Wind", justify="right")
-    table.add_column("Avg RH", justify="right")
-    table.add_column("Sunshine", justify="right")
-
-    for day in aggregate_daily(records):
-        table.add_row(
-            day["date"],
-            f"{day['temp_min']:.1f}" if day["temp_min"] is not None else "–",
-            f"{day['temp_max']:.1f}" if day["temp_max"] is not None else "–",
-            f"{day['temp_avg']:.1f}" if day["temp_avg"] is not None else "–",
-            f"{day['precip_total']:.1f} mm" if day["precip_total"] is not None else "–",
-            f"{day['wind_avg']:.1f} km/h" if day["wind_avg"] is not None else "–",
-            f"{day['humidity_avg']:.0f} %" if day["humidity_avg"] is not None else "–",
-            f"{day['sunshine_total']:.0f} min" if day["sunshine_total"] is not None else "–",
-        )
-
-    console.print()
-    console.print(table)
-    console.print(f"[dim]  Stations: {', '.join(stations)}[/]")
-    console.print()

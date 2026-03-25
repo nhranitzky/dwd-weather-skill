@@ -63,12 +63,12 @@ def current(location: tuple[str, ...], tz: str, units: str, output_json: bool):
 
     rows = [
         ("🕐 Observed at",      fmt_timestamp(w.get("timestamp"))),
-        ("🌡️  Temperature",      fmt_temp(w.get("temperature"))),
-        ("💧 Dew Point",         fmt_temp(w.get("dew_point"))),
+        ("🌡️  Temperature",      fmt_temp(w.get("temperature"), units)),
+        ("💧 Dew Point",         fmt_temp(w.get("dew_point"), units)),
         ("💧 Rel. Humidity",     fmt_humidity(w.get("relative_humidity"))),
-        ("🌬️  Wind",             fmt_wind(w.get("wind_speed"), w.get("wind_direction"))),
-        ("💨 Gusts",             fmt_wind(w.get("wind_gust_speed"), w.get("wind_gust_direction"))),
-        ("☔ Precipitation",     fmt_precip(w.get("precipitation_10"))),
+        ("🌬️  Wind",             fmt_wind(w.get("wind_speed"), w.get("wind_direction"), units)),
+        ("💨 Gusts",             fmt_wind(w.get("wind_gust_speed"), w.get("wind_gust_direction"), units)),
+        ("☔ Precipitation",     fmt_precip(w.get("precipitation_10"), units)),
         ("☁️  Cloud Cover",      f"{w.get('cloud_cover')} %" if w.get("cloud_cover") is not None else "–"),
         ("🔵 Pressure (MSL)",    fmt_pressure(w.get("pressure_msl"))),
         ("👁️  Visibility",        fmt_visibility(w.get("visibility"))),

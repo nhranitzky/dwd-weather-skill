@@ -1,5 +1,5 @@
 include .env
-SKILL_DIR  := {{skillname}}
+SKILL_DIR  := dwd-weather
 SKILL_NAME := dwd-weather
 VERSION    := $(shell grep '^version' $(SKILL_DIR)/pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 DIST_DIR       := dist
@@ -8,11 +8,12 @@ SKILL_ZIP_PATH := $(DIST_DIR)/$(SKILL_ZIP_NAME)
 
 
 
-.PHONY: install lint package clean deploy help
+.PHONY: install lint test package clean deploy help
 
-install:          ## Install all dependencies (dev + skill)
-	(cd $(SKILL_DIR) && uv sync)
+ 
 
+test:             ## Run tests
+	(cd $(SKILL_DIR) && uv run pytest -v)
 
 lint:             ## Check code style
 	uv run ruff check $(SKILL_DIR)/scripts

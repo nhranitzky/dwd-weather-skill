@@ -23,8 +23,8 @@ from scripts.utils import (
 
 @click.command()
 @click.argument("location", nargs=-1, required=True)
-@click.option("--radius", "-r", default=50, show_default=True, type=int,
-              help="Search radius in kilometres.")
+@click.option("--radius", "-r", default=50, show_default=True, type=click.IntRange(1, 1000),
+              help="Search radius in kilometres (1–1000).")
 @click.option("--limit", "-n", default=15, show_default=True, type=int,
               help="Maximum number of stations to display.")
 @click.option("--json", "output_json", is_flag=True, default=False, help="Output as JSON.")

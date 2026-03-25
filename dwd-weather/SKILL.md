@@ -27,7 +27,7 @@ Query DWD weather data via the **BrightSky API** (`api.brightsky.dev`).
 - `--days N` — forecast/summary horizon (1–10, default 3 or 5)
 - `--daily` — aggregate hourly rows into daily summaries
 - `--date / --end-date` — historical date range (YYYY-MM-DD)
-- `--radius KM` — station search radius (default 50 km)
+- `--radius KM` — station search radius in km, 1–1000 (default 50)
 - `--tz TZ` — IANA timezone (default `Europe/Berlin`)
 - `--units dwd|si` — unit system (DWD: km/h, mm, °C; SI: m/s, kg/m², K)
 - `--json` — output data as JSON instead of a formatted table
@@ -232,7 +232,9 @@ Same structure as `forecast --json`. Additionally contains `period`, `stations`,
 | Error | Cause | Resolution |
 |-------|-------|-----------|
 | `Location not found` | OSM Nominatim could not resolve the place name | Try a more specific name, add country (e.g. `Berlin, Germany`) |
-| `BrightSky API error` | HTTP error from `api.brightsky.dev` | Check network connectivity; BrightSky is free with no key required |
+| `BrightSky API error: No data for this location` | 404 – no DWD station found near the coordinates | Try a German city closer to a DWD station |
+| `BrightSky API error: Rate limit exceeded` | 429 – too many requests | Wait a moment and retry |
+| `BrightSky API error: Service unavailable` | 5xx – BrightSky is temporarily down | Retry after a few minutes |
 | `No forecast data available` | Location is outside BrightSky coverage | DWD data covers Germany and neighbouring regions; try a German city |
 | `warn_cell_id` is empty | Location is outside Germany | DWD alerts only cover Germany; `alerts` will be an empty list |
 | `No historical data found` | Station has no data for the requested period | Try a shorter range or a different location |

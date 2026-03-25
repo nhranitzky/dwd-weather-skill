@@ -24,6 +24,7 @@ from scripts.utils import (
     weather_icon,
     fmt_temp,
     fmt_wind,
+    fmt_precip,
     fmt_humidity,
     fmt_pressure,
     fmt_visibility,
@@ -76,11 +77,11 @@ def summary(location: tuple[str, ...], days: int, tz: str, units: str, output_js
     # ── Current conditions panel ─────────────────────────────────────────────
     icon = weather_icon(w)
     condition = (w.get("condition") or "").replace("_", " ").title()
-    temp = fmt_temp(w.get("temperature"))
+    temp = fmt_temp(w.get("temperature"), units)
 
     cur_text = Text()
     cur_text.append(f"  {icon}  {temp}  {condition}\n\n", style="bold")
-    cur_text.append(f"  💨 Wind:     {fmt_wind(w.get('wind_speed'), w.get('wind_direction'))}\n")
+    cur_text.append(f"  💨 Wind:     {fmt_wind(w.get('wind_speed'), w.get('wind_direction'), units)}\n")
     cur_text.append(f"  💧 Humidity: {fmt_humidity(w.get('relative_humidity'))}\n")
     cur_text.append(f"  🔵 Pressure: {fmt_pressure(w.get('pressure_msl'))}\n")
     cur_text.append(f"  👁  Visibility:{fmt_visibility(w.get('visibility'))}\n")
@@ -124,8 +125,8 @@ def summary(location: tuple[str, ...], days: int, tz: str, units: str, output_js
             day["icon"],
             f"{day['temp_min']:.0f}°" if day["temp_min"] is not None else "–",
             f"{day['temp_max']:.0f}°" if day["temp_max"] is not None else "–",
-            f"{day['precip_total']:.1f} mm" if day["precip_total"] is not None else "–",
-            f"{day['wind_avg']:.1f} km/h" if day["wind_avg"] is not None else "–",
+            fmt_precip(day["precip_total"], units),
+            fmt_wind(day["wind_avg"], units=units),
             f"{day['sunshine_total']:.0f} min" if day["sunshine_total"] is not None else "–",
         )
 
